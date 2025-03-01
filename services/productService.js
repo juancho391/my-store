@@ -1,4 +1,5 @@
 const {faker} = require('@faker-js/faker');
+const findTheIndex  = require('../utilities/findIndex');
 
 
 class ProductService{
@@ -7,7 +8,7 @@ class ProductService{
     this.products = [];
     this.generate();
   }
-  generate(){
+  async generate(){
     const limit = 100;
     for(let index = 0; index < limit; index++){
       this.products.push({
@@ -19,25 +20,39 @@ class ProductService{
     }
 
   }
-  create(data){
+  async create(data){
     const newProduct = {
       ...data
     }
     this.products.push(newProduct);
     return newProduct
   }
-  find(){
-    return this.products;
+  async find(){
+    return new Promise((resolve, reject) => {
+      setTimeout(()=>{
+        resolve(this.products);
+      }, 5000);
+    })
+  }
 
+  async findOne(id){
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        const product = this.products.find(item => item.id === id)
+
+        if(!product){
+          reject(new Error("product not found"))
+        }else{
+          resolve(product)
+        }
+      }, 3000);
+
+  });
   }
-  findOne(id){
-    return this.products.find(item => item.id === id);
-  }
-  update(id, changes){
-    const index = this.products.findIndex(item => item.id === item.id)
-    if (index === -1){
-      throw new Error("Product Not Found");
-    }const product = this.products[index];
+
+  async update(id, changes){
+    const index = findTheIndex(id, this.products);
+    const product = this.products[index];
     this.products[index] = {
       ...product,
       ...changes
@@ -45,13 +60,8 @@ class ProductService{
     return this.products[index];
 
   }
-  delete(id){
-    const index = this.products.findIndex(item => item.id === id);
-    console.log(index)
-    if (index === -1){
-      return {message: "not found"}
-      // throw new Error("Product Not Found");
-    }
+  async delete(id){
+    const index = findTheIndex(id, this.products);
     this.products.splice(index,1)
     return {id}
 
