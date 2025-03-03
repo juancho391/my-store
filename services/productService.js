@@ -1,5 +1,6 @@
 const {faker} = require('@faker-js/faker');
 const findTheIndex  = require('../utilities/findIndex');
+const boom = require('@hapi/boom')
 
 
 class ProductService{
@@ -16,6 +17,7 @@ class ProductService{
         name : faker.commerce.productName(),
         price : parseInt(faker.commerce.price(),10),
         image : faker.image.url(),
+        isBlock : faker.datatype.boolean(),
       });
     }
 
@@ -36,18 +38,14 @@ class ProductService{
   }
 
   async findOne(id){
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        const product = this.products.find(item => item.id === id)
-
-        if(!product){
-          reject(new Error("product not found"))
-        }else{
-          resolve(product)
-        }
-      }, 3000);
-
-  });
+   const product = this.products.find(item => item.id === id);
+   if (!product){
+    throw boom.notFound('Product not found')
+   }
+   if(product.isBlock){
+    throw boom.conflict('product is block');
+   }
+   return product;
   }
 
   async update(id, changes){
