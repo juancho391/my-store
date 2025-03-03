@@ -23,16 +23,14 @@ router.get('/', async (req, res) => {
 
 
 
-router.get('/:id', async (req, res) =>{
+router.get('/:id', async (req, res, next) =>{
   try {
     const {id} = req.params;
     const product = await service.findOne(parseInt(id));
     res.json(product);
 
   } catch (error) {
-    res.status(404).json({
-    message : error.message
-    })
+    next(error);
   }
 });
 
@@ -42,28 +40,24 @@ router.post('/', async (req, res)=>{
   res.status(201).json(newProduct);
 })
 
-router.patch('/:id', async (req, res)=>{
+router.patch('/:id', async (req, res, next)=>{
   try {
     const {id} = req.params
     const body = req.body
     const product =  await service.update(parseInt(id), body);
     res.json(product);
   } catch (error) {
-    res.status(404).json({
-      message : error.message
-    })
+    next(error)
   }
 })
 
-router.delete('/:id', async (req,res)=>{
+router.delete('/:id', async (req,res, next)=>{
   try {
     const {id} = req.params;
     const response = await service.delete(parseInt(id));
     res.json(response)
   } catch (error) {
-    res.status(404).json({
-      message : error.message
-    })
+    next(error)
   }
 
 })
